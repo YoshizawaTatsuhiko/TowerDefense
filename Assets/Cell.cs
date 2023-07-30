@@ -7,7 +7,9 @@ public class Cell : MonoBehaviour
     public float TotalCost { get; set; } = 0f;  // 実コスト + 推定コスト
     public float ActualCost { get; set; } = 0f;  // 実コスト
     public float HeuristicCost { get; set; } = 0f;  // 推定コスト
-    public CellState State { get; set; } = CellState.None;  // セルの状態
+    public CellState State => _cellState;  // セルの状態
+
+    [SerializeField ] private CellState _cellState = CellState.None;
 }
 
 public enum CellState
