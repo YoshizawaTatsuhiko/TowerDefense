@@ -14,12 +14,11 @@ public class AStar : MonoBehaviour
     {
         _cells = new Cell[ _row, _column ];
 
-        for (int y = 0; y < _row; y++)
+        for (int r = 0; r < _row; r++)
         {
-            for (int x = 0; x < _column; x++)
+            for (int c = 0; c < _column; c++)
             {
-                _cells[y, x] = Instantiate(_floorTile, 
-                    new Vector2(x - (_column / 2f), y - (_row / 2f)), Quaternion.identity, transform);
+
             }
         }
     }
