@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // 日本語対応
-public class AStar : MonoBehaviour
+public class GridMapController : MonoBehaviour
 {
     [SerializeField] private int _row = 5;
     [SerializeField] private int _column = 5;
@@ -18,7 +18,8 @@ public class AStar : MonoBehaviour
         {
             for (int c = 0; c < _column; c++)
             {
-
+                _cells[r, c] = Instantiate(_floorTile,
+                    new Vector2(r - (_row / 2f) + 0.5f, c - (_column / 2f) + 0.5f), Quaternion.identity, transform);
             }
         }
     }
