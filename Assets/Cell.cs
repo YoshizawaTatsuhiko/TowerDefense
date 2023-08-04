@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 // 日本語対応
@@ -18,5 +17,7 @@ public enum CellState
     None = 0,
     Open = 1,
     Close = 2,
-    CannotOpen = 4,
+    Start = 4,
+    Goal = 8,
+    CannotOpen = 16,
 }
