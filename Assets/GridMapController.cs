@@ -1,6 +1,5 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 // 日本語対応
@@ -14,7 +13,7 @@ public class GridMapController : MonoBehaviour
 
     private void Start()
     {
-        _cells = new Cell[ _row, _column ];
+        _cells = new Cell[_row, _column];
         var maze = new HoleDigging(_row, _column);
         Cell cell = null;
 
@@ -22,20 +21,29 @@ public class GridMapController : MonoBehaviour
         {
             for (int j = 0; j < maze.GetWidth(); j++)
             {
-                switch (maze[i, j])
+                if (i * j == 1)
                 {
-                    case 0:
-                        cell = _wallTile;
-                        cell.State = CellState.CannotOpen;
-                        cell.gameObject.GetComponent<SpriteRenderer>().color = Color.black;
-                        break;
-                    case 1:
-                        cell = _floorTile;
-                        cell.State = CellState.None;
-                        cell.gameObject.GetComponent<SpriteRenderer>().color = Color.white;
-                        break;
+                    cell = _floorTile;
+                    cell.State = CellState.Start;
+                    cell.GetComponent<SpriteRenderer>().color = Color.yellow;
                 }
-                Instantiate(cell, new Vector2
+                else
+                {
+                    switch (maze[i, j])
+                    {
+                        case 0:
+                            cell = _wallTile;
+                            cell.State = CellState.CannotOpen;
+                            cell.gameObject.GetComponent<SpriteRenderer>().color = Color.black;
+                            break;
+                        case 1:
+                            cell = _floorTile;
+                            cell.State = CellState.None;
+                            cell.gameObject.GetComponent<SpriteRenderer>().color = Color.white;
+                            break;
+                    }
+                }
+                _cells[i, j] = Instantiate(cell, new Vector2
                         (i - maze.GetHeight() / 2f + 0.5f, j - maze.GetWidth() / 2f + 0.5f), Quaternion.identity, transform);
             }
         }
