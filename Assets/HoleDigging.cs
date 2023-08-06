@@ -132,8 +132,8 @@ public class HoleDigging
         }
     }
 
-    public int GetWidth() => _maze.GetLength(0);
-    public int GetHeight() => _maze.GetLength(1);
+    public int GetMazeWidth() => _maze.GetLength(0);
+    public int GetMazeHeight() => _maze.GetLength(1);
 
     private const int _WALL = 0;
     private const int _PATH = 1;

@@ -17,9 +17,9 @@ public class GridMapController : MonoBehaviour
         var maze = new HoleDigging(_row, _column);
         Cell cell = null;
 
-        for (int i = 0; i < maze.GetHeight(); i++)
+        for (int i = 0; i < maze.GetMazeHeight(); i++)
         {
-            for (int j = 0; j < maze.GetWidth(); j++)
+            for (int j = 0; j < maze.GetMazeWidth(); j++)
             {
                 if (i * j == 1)
                 {
@@ -44,7 +44,7 @@ public class GridMapController : MonoBehaviour
                     }
                 }
                 _cells[i, j] = Instantiate(cell, new Vector2
-                        (i - maze.GetHeight() / 2f + 0.5f, j - maze.GetWidth() / 2f + 0.5f), Quaternion.identity, transform);
+                        (i - maze.GetMazeHeight() / 2f + 0.5f, j - maze.GetMazeWidth() / 2f + 0.5f), Quaternion.identity, transform);
             }
         }
     }
