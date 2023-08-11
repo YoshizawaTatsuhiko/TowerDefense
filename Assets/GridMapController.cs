@@ -49,15 +49,20 @@ public class GridMapController : MonoBehaviour
         }
     }
 
-    private Cell SearchStartCell(Cell[,] cells)
+    private void GetStartAndGoal(out (int, int) start, out (int, int) goal)
     {
-        for(int i = 0; i < cells.GetLength(0); i++)
+        start = (-1, -1);
+        goal = (-1, -1);
+
+        for (int r = 0; r < _cells.GetLength(0); r++)
         {
-            for (int j = 0; j < cells.GetLength(1); j++)
+            for (int c = 0; c < _cells.GetLength(1); c++)
             {
-                if (cells[i, j].State == CellState.Start) return cells[i, j];
+                if (_cells[r, c].State == CellState.Start) start = (r, c);
+                else if (_cells[r, c].State == CellState.Goal) goal = (r, c);
+
+                if (start != (-1, -1) && goal != (-1, -1)) return;
             }
         }
-        return null;
     }
 }
