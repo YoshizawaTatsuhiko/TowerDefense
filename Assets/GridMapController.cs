@@ -65,4 +65,15 @@ public class GridMapController : MonoBehaviour
             }
         }
     }
+
+    private bool TryGetCell(int r, int c, out Cell cell)
+    {
+        if (r < 0 || r >= _cells.GetLength(0) || c < 0 || c >= _cells.GetLength(1))
+        {
+            cell = null;
+            return false;
+        }
+        cell = _cells[r, c];
+        return true;
+    }
 }
