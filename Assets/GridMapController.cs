@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,19 +28,7 @@ public class GridMapController : MonoBehaviour
                 }
                 else
                 {
-                    switch (maze[i, j])
-                    {
-                        case 0:
-                            cell = _wallTile;
-                            cell.State = CellState.CannotOpen;
-                            cell.gameObject.GetComponent<SpriteRenderer>().color = Color.black;
-                            break;
-                        case 1:
-                            cell = _floorTile;
-                            cell.State = CellState.None;
-                            cell.gameObject.GetComponent<SpriteRenderer>().color = Color.white;
-                            break;
-                    }
+                    cell = CellInitialize(maze, i, j);
                 }
                 _cells[i, j] = Instantiate(cell, new Vector2
                         (i - maze.GetMazeHeight() / 2f + 0.5f, j - maze.GetMazeWidth() / 2f + 0.5f), Quaternion.identity, transform);
@@ -49,19 +36,46 @@ public class GridMapController : MonoBehaviour
         }
     }
 
-    private void GetStartAndGoal(out (int, int) start, out (int, int) goal)
+    private Cell CellInitialize(HoleDigging maze, int i, int j)
     {
-        start = (-1, -1);
-        goal = (-1, -1);
+        if (!TryGetCell(i, j, out Cell cell)) return null;
+
+        switch (maze[i, j])
+        {
+            case 0:
+                cell = _wallTile;
+                cell.State = CellState.CannotOpen;
+                cell.gameObject.GetComponent<SpriteRenderer>().color = Color.black;
+                break;
+            case 1:
+                cell = _floorTile;
+                cell.State = CellState.None;
+                cell.gameObject.GetComponent<SpriteRenderer>().color = Color.white;
+                break;
+        }
+        return cell;
+    }
+
+    private void GetStartAndGoal(ref (int, int) start, ref (int, int) goal)
+    {
+        byte isComplete = 0b_0000;
 
         for (int r = 0; r < _cells.GetLength(0); r++)
         {
             for (int c = 0; c < _cells.GetLength(1); c++)
             {
-                if (_cells[r, c].State == CellState.Start) start = (r, c);
-                else if (_cells[r, c].State == CellState.Goal) goal = (r, c);
+                if (_cells[r, c].State == CellState.Start)
+                {
+                    start = (r, c);
+                    isComplete = 0b_0001;
+                }
+                else if (_cells[r, c].State == CellState.Goal)
+                {
+                    goal = (r, c);
+                    isComplete = 0b_0010;
+                }
 
-                if (start != (-1, -1) && goal != (-1, -1)) return;
+                if (isComplete == 0b_0011) return;
             }
         }
     }
