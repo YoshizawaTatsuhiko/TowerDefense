@@ -9,38 +9,41 @@ public class GridMapController : MonoBehaviour
     [SerializeField] private Cell _wallTile = null;
     [SerializeField] private Cell _floorTile = null;
     private Cell[,] _cells = null;
+    HoleDigging _maze = null;
 
     private void Start()
     {
-        _cells = new Cell[_row, _column];
-        var maze = new HoleDigging(_row, _column);
-        Cell cell = null;
+        _maze = new HoleDigging(_row, _column);
+        _cells = new Cell[_maze.GetMazeWidth(), _maze.GetMazeHeight()];
+        CellInitializes(_maze.Get2DArray());
 
-        for (int i = 0; i < maze.GetMazeHeight(); i++)
+        for (int i = 0; i < _maze.GetMazeWidth(); i++)
         {
-            for (int j = 0; j < maze.GetMazeWidth(); j++)
+            for (int j = 0; j < _maze.GetMazeHeight(); j++)
             {
-                if (i * j == 1)
-                {
-                    cell = _floorTile;
-                    cell.State = CellState.Start;
-                    cell.GetComponent<SpriteRenderer>().color = Color.yellow;
-                }
-                else
-                {
-                    cell = CellInitialize(maze, i, j);
-                }
-                _cells[i, j] = Instantiate(cell, new Vector2
-                        (i - maze.GetMazeHeight() / 2f + 0.5f, j - maze.GetMazeWidth() / 2f + 0.5f), Quaternion.identity, transform);
+                Instantiate(_cells[i, j], new Vector2
+                    (i - _maze.GetMazeWidth() / 2f + 0.5f, 
+                     j - _maze.GetMazeHeight() / 2f + 0.5f), Quaternion.identity, transform);
             }
         }
     }
 
-    private Cell CellInitialize(HoleDigging maze, int i, int j)
+    private void CellInitializes(int[,] blueprint)
     {
-        if (!TryGetCell(i, j, out Cell cell)) return null;
+        for (int i = 0; i < _cells.GetLength(0); i++)
+        {
+            for (int j = 0; j < _cells.GetLength(1); j++)
+            {
+                CellInitialize(blueprint, i, j);
+            }
+        }
+    }
 
-        switch (maze[i, j])
+    private void CellInitialize(int[,] blueprint, int i, int j)
+    {
+        if (!TryGetCell(i, j, out Cell cell)) return;
+
+        switch (blueprint[i, j])
         {
             case 0:
                 cell = _wallTile;
@@ -53,31 +56,36 @@ public class GridMapController : MonoBehaviour
                 cell.gameObject.GetComponent<SpriteRenderer>().color = Color.white;
                 break;
         }
-        return cell;
     }
 
-    private void GetStartAndGoal(ref (int, int) start, ref (int, int) goal)
+    //private void GetStartAndGoal(out (int, int) start, out (int, int) goal)
+    //{
+    //    start = (-1, -1);
+    //    goal = (-1, -1);
+
+    //    for (int r = 0; r < _cells.GetLength(0); r++)
+    //    {
+    //        for (int c = 0; c < _cells.GetLength(1); c++)
+    //        {
+    //            if (_cells[r, c].State == CellState.Start)
+    //            {
+    //                start = (r, c);
+    //            }
+    //            else if (_cells[r, c].State == CellState.Goal)
+    //            {
+    //                goal = (r, c);
+    //            }
+
+    //            if (start != (-1, -1) && goal != (-1, -1)) return;
+    //        }
+    //    }
+    //}
+
+    private void SetCellState(int r, int c, CellState state)
     {
-        byte isComplete = 0b_0000;
+        if (!TryGetCell(r, c, out Cell cell)) return;
 
-        for (int r = 0; r < _cells.GetLength(0); r++)
-        {
-            for (int c = 0; c < _cells.GetLength(1); c++)
-            {
-                if (_cells[r, c].State == CellState.Start)
-                {
-                    start = (r, c);
-                    isComplete = 0b_0001;
-                }
-                else if (_cells[r, c].State == CellState.Goal)
-                {
-                    goal = (r, c);
-                    isComplete = 0b_0010;
-                }
-
-                if (isComplete == 0b_0011) return;
-            }
-        }
+        cell.State = state;
     }
 
     private bool TryGetCell(int r, int c, out Cell cell)
