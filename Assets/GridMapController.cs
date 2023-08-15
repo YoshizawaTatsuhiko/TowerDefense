@@ -56,6 +56,7 @@ public class GridMapController : MonoBehaviour
                 cell.gameObject.GetComponent<SpriteRenderer>().color = Color.white;
                 break;
         }
+        _cells[i, j] = cell;
     }
 
     //private void GetStartAndGoal(out (int, int) start, out (int, int) goal)
