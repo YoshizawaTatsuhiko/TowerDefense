@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4502823049193727405}
   - component: {fileID: 4502823049193727404}
   m_Layer: 0
-  m_Name: Test Cell
+  m_Name: Test Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -97,4 +97,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7f9f3d13e1f7354c9a7e7010509e0aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cellState: 4
+  _cellState: 16
