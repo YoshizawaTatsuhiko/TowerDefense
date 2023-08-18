@@ -12,13 +12,10 @@ public class GridMapController : MonoBehaviour
 
     private void Start()
     {
-        SetCell(ref _wallTile, CellState.CannotOpen, Color.black);
-        SetCell(ref _pathTile, CellState.None, Color.white);
-
         var maze = new HoleDigging(_row, _column);
         _cells = new Cell[maze.GetMazeWidth(), maze.GetMazeHeight()];
         var blueprint = maze.Get2DArray();
-        CellsInit(ref blueprint);
+        InitCells(ref blueprint);
 
         for (int r = 0; r < _cells.GetLength(0); r++)
         {
@@ -31,16 +28,16 @@ public class GridMapController : MonoBehaviour
         }
     }
 
-    private void CellsInit(ref int[,] blueprint)
+    private void InitCells(ref int[,] blueprint)
     {
         for (int r = 0; r < _cells.GetLength(0); r++)
             for (int c = 0; c < _cells.GetLength(1); c++)
             {
-                CellInit(ref blueprint, r, c);
+                InitCell(ref blueprint, r, c);
             }
     }
 
-    private void CellInit(ref int[,] blueprint, int r, int c)
+    private void InitCell(ref int[,] blueprint, int r, int c)
     {
         if (!TryGetCell(r, c, out Cell cell)) return;
 
@@ -52,12 +49,6 @@ public class GridMapController : MonoBehaviour
         };
     }
 
-    private void SetCell(ref Cell cell, CellState state, Color color)
-    {
-        cell.State = state;
-        if (cell.TryGetComponent(out SpriteRenderer renderer)) renderer.color = color;
-    }
-
     private bool TryGetCell(int r, int c, out Cell cell)
     {
         if (r < 0 || r >= _cells.GetLength(0) || c < 0 || c >= _cells.GetLength(1))
@@ -67,5 +58,19 @@ public class GridMapController : MonoBehaviour
         }
         cell = _cells[r, c];
         return true;
+    }
+
+    private void GetMatchingElement(CellState target, CellState condition, int targetCount)
+    {
+        List<(int ,int)> matchList = new(8);
+
+        for (int r = 0; r < _cells.GetLength(0); r++)
+            for (int c = 0; c < _cells.GetLength(1); c++)
+            {
+                if (TryGetCell(r, c, out Cell cell))
+                {
+                    
+                }
+            }
     }
 }
