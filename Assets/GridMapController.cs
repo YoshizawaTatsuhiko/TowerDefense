@@ -62,14 +62,19 @@ public class GridMapController : MonoBehaviour
 
     private void GetMatchingElement(CellState target, CellState condition, int targetCount)
     {
-        List<(int ,int)> matchList = new(8);
+        List<(int, int)> matchList = new(8);
 
         for (int r = 0; r < _cells.GetLength(0); r++)
-            for (int c = 0; c < _cells.GetLength(1); c++)
+            for (int c = 0, count = 0; c < _cells.GetLength(1); c++, count = 0)
             {
-                if (TryGetCell(r, c, out Cell cell))
+                if (TryGetCell(r, c, out Cell cell) && cell.State == target)
                 {
-                    
+                    { if (TryGetCell(r - 1, c, out Cell neighbor) && neighbor.State == condition) count++; }
+                    { if (TryGetCell(r + 1, c, out Cell neighbor) && neighbor.State == condition) count++; }
+                    { if (TryGetCell(r, c - 1, out Cell neighbor) && neighbor.State == condition) count++; }
+                    { if (TryGetCell(r, c + 1, out Cell neighbor) && neighbor.State == condition) count++; }
+
+                    if (count >= targetCount) matchList.Add((r, c));
                 }
             }
     }
