@@ -26,6 +26,7 @@ public class GridMapController : MonoBehaviour
                      c - _cells.GetLength(1) / 2f + 0.5f), Quaternion.identity, transform);
             }
         }
+        var matchList = GetMatchingElement(CellState.None, CellState.CannotOpen, 3);
     }
 
     private void InitCells(ref int[,] blueprint)
@@ -60,7 +61,7 @@ public class GridMapController : MonoBehaviour
         return true;
     }
 
-    private void GetMatchingElement(CellState target, CellState condition, int targetCount)
+    private List<(int, int)> GetMatchingElement(CellState target, CellState roundState, int targetCount)
     {
         List<(int, int)> matchList = new(8);
 
@@ -69,13 +70,14 @@ public class GridMapController : MonoBehaviour
             {
                 if (TryGetCell(r, c, out Cell cell) && cell.State == target)
                 {
-                    { if (TryGetCell(r - 1, c, out Cell neighbor) && neighbor.State == condition) count++; }
-                    { if (TryGetCell(r + 1, c, out Cell neighbor) && neighbor.State == condition) count++; }
-                    { if (TryGetCell(r, c - 1, out Cell neighbor) && neighbor.State == condition) count++; }
-                    { if (TryGetCell(r, c + 1, out Cell neighbor) && neighbor.State == condition) count++; }
+                    { if (TryGetCell(r - 1, c, out Cell neighbor) && neighbor.State == roundState) count++; }
+                    { if (TryGetCell(r + 1, c, out Cell neighbor) && neighbor.State == roundState) count++; }
+                    { if (TryGetCell(r, c - 1, out Cell neighbor) && neighbor.State == roundState) count++; }
+                    { if (TryGetCell(r, c + 1, out Cell neighbor) && neighbor.State == roundState) count++; }
 
                     if (count >= targetCount) matchList.Add((r, c));
                 }
             }
+        return matchList;
     }
 }
