@@ -26,7 +26,17 @@ public class GridMapController : MonoBehaviour
                      c - _cells.GetLength(1) / 2f + 0.5f), Quaternion.identity, transform);
             }
         }
-        var matchList = GetMatchingElement(CellState.None, CellState.CannotOpen, 3);
+        var matchList = GetMatchingElement(_pathTile.State, _wallTile.State, 3);
+
+        for (int i = 0, n = Random.Range(0, matchList.Count); i < 2; i++, n = Random.Range(0, matchList.Count))
+        {
+            var pair = matchList[n];
+
+            SetCell(ref _cells[pair.Item1, pair.Item2],
+                i == 0 ? CellState.Start : CellState.Goal,
+                i == 0 ? Color.yellow : Color.red);
+            matchList.RemoveAt(n);
+        }
     }
 
     private void InitCells(ref int[,] blueprint)
@@ -61,7 +71,14 @@ public class GridMapController : MonoBehaviour
         return true;
     }
 
-    private List<(int, int)> GetMatchingElement(CellState target, CellState roundState, int targetCount)
+    private void SetCell(ref Cell cell, CellState state = CellState.None, Color color = new Color())
+    {
+        cell.State = state;
+        
+        if(cell.TryGetComponent(out SpriteRenderer renderer)) renderer.color = color;
+    }
+
+    private List<(int, int)> GetMatchingElement(CellState target, CellState aroundState, int targetCount)
     {
         List<(int, int)> matchList = new(8);
 
@@ -70,10 +87,10 @@ public class GridMapController : MonoBehaviour
             {
                 if (TryGetCell(r, c, out Cell cell) && cell.State == target)
                 {
-                    { if (TryGetCell(r - 1, c, out Cell neighbor) && neighbor.State == roundState) count++; }
-                    { if (TryGetCell(r + 1, c, out Cell neighbor) && neighbor.State == roundState) count++; }
-                    { if (TryGetCell(r, c - 1, out Cell neighbor) && neighbor.State == roundState) count++; }
-                    { if (TryGetCell(r, c + 1, out Cell neighbor) && neighbor.State == roundState) count++; }
+                    { if (TryGetCell(r - 1, c, out Cell neighbor) && neighbor.State == aroundState) count++; }
+                    { if (TryGetCell(r + 1, c, out Cell neighbor) && neighbor.State == aroundState) count++; }
+                    { if (TryGetCell(r, c - 1, out Cell neighbor) && neighbor.State == aroundState) count++; }
+                    { if (TryGetCell(r, c + 1, out Cell neighbor) && neighbor.State == aroundState) count++; }
 
                     if (count >= targetCount) matchList.Add((r, c));
                 }
