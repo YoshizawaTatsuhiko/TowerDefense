@@ -15,49 +15,54 @@ public class GridMapController : MonoBehaviour
         var maze = new HoleDigging(_row, _column);
         _cells = new Cell[maze.GetMazeWidth(), maze.GetMazeHeight()];
         var blueprint = maze.Get2DArray();
-        InitCells(ref blueprint);
+        //InitCells(ref blueprint);
+        var matchList = GetMatchingElement(_pathTile.State, _wallTile.State, 3);
 
+        //for (int i = 0, n = Random.Range(0, matchList.Count); i < 2; i++, n = Random.Range(0, matchList.Count))
+        //{
+        //    var pair = matchList[n];
+
+        //    SetCell(_cells[pair.Item1, pair.Item2],
+        //        i == 0 ? CellState.Start : CellState.Goal,
+        //        i == 0 ? Color.yellow : Color.red);
+        //    matchList.RemoveAt(n);
+        //}
+        GenerateMap(ref blueprint);
+    }
+
+    private void GenerateMap(ref int[,] blueprint)
+    {
         for (int r = 0; r < _cells.GetLength(0); r++)
         {
             for (int c = 0; c < _cells.GetLength(1); c++)
             {
-                Instantiate(_cells[r, c], new Vector2
-                    (r - _cells.GetLength(0) / 2f + 0.5f, 
+                _cells[r, c] = Instantiate(InitCell(ref blueprint, r, c), new Vector2
+                    (r - _cells.GetLength(0) / 2f + 0.5f,
                      c - _cells.GetLength(1) / 2f + 0.5f), Quaternion.identity, transform);
             }
         }
-        var matchList = GetMatchingElement(_pathTile.State, _wallTile.State, 3);
-
-        for (int i = 0, n = Random.Range(0, matchList.Count); i < 2; i++, n = Random.Range(0, matchList.Count))
-        {
-            var pair = matchList[n];
-
-            SetCell(ref _cells[pair.Item1, pair.Item2],
-                i == 0 ? CellState.Start : CellState.Goal,
-                i == 0 ? Color.yellow : Color.red);
-            matchList.RemoveAt(n);
-        }
     }
 
-    private void InitCells(ref int[,] blueprint)
-    {
-        for (int r = 0; r < _cells.GetLength(0); r++)
-            for (int c = 0; c < _cells.GetLength(1); c++)
-            {
-                InitCell(ref blueprint, r, c);
-            }
-    }
+    //private void InitCells(ref int[,] blueprint)
+    //{
+    //    for (int r = 0; r < _cells.GetLength(0); r++)
+    //        for (int c = 0; c < _cells.GetLength(1); c++)
+    //        {
+    //            InitCell(ref blueprint, r, c);
+    //        }
+    //}
 
-    private void InitCell(ref int[,] blueprint, int r, int c)
+    private Cell InitCell(ref int[,] blueprint, int r, int c)
     {
-        if (!TryGetCell(r, c, out Cell cell)) return;
+        if (!TryGetCell(r, c, out Cell cell)) return null;
 
-        _cells[r, c] = blueprint[r, c] switch
+        cell = blueprint[r, c] switch
         {
             0 => _wallTile,
             1 => _pathTile,
             _ => throw new System.Exception("Caseにない値が検出されました。"),
         };
+        return cell;
     }
 
     private bool TryGetCell(int r, int c, out Cell cell)
@@ -71,7 +76,7 @@ public class GridMapController : MonoBehaviour
         return true;
     }
 
-    private void SetCell(ref Cell cell, CellState state = CellState.None, Color color = new Color())
+    private void SetCell(Cell cell, CellState state = CellState.None, Color color = new Color())
     {
         cell.State = state;
         
