@@ -15,19 +15,18 @@ public class GridMapController : MonoBehaviour
         var maze = new HoleDigging(_row, _column);
         _cells = new Cell[maze.GetMazeWidth(), maze.GetMazeHeight()];
         var blueprint = maze.Get2DArray();
-        //InitCells(ref blueprint);
+        GenerateMap(ref blueprint);
         var matchList = GetMatchingElement(_pathTile.State, _wallTile.State, 3);
 
-        //for (int i = 0, n = Random.Range(0, matchList.Count); i < 2; i++, n = Random.Range(0, matchList.Count))
-        //{
-        //    var pair = matchList[n];
+        for (int i = 0, n = Random.Range(0, matchList.Count); i < 2; i++, n = Random.Range(0, matchList.Count))
+        {
+            var pair = matchList[n];
 
-        //    SetCell(_cells[pair.Item1, pair.Item2],
-        //        i == 0 ? CellState.Start : CellState.Goal,
-        //        i == 0 ? Color.yellow : Color.red);
-        //    matchList.RemoveAt(n);
-        //}
-        GenerateMap(ref blueprint);
+            SetCell(_cells[pair.Item1, pair.Item2],
+                i == 0 ? CellState.Start : CellState.Goal,
+                i == 0 ? Color.yellow : Color.red);
+            matchList.RemoveAt(n);
+        }
     }
 
     private void GenerateMap(ref int[,] blueprint)
