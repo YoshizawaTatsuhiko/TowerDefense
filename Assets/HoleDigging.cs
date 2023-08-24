@@ -13,8 +13,8 @@ public class HoleDigging
         get { return _maze[row, column]; }
         set { _maze[row, column] = value; }
     }
+
     private int[,] _maze = null;
-    /// <summary>通路拡張開始地点候補</summary>
     private List<(int, int)> _startList = new List<(int, int)>();
     private Random _random = new();
 
@@ -132,6 +132,7 @@ public class HoleDigging
         }
     }
 
+    public int[,] Get2DArray() => _maze;
     public int GetMazeWidth() => _maze.GetLength(0);
     public int GetMazeHeight() => _maze.GetLength(1);
 
