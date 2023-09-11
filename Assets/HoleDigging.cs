@@ -40,12 +40,12 @@ public class HoleDigging
                 // 迷路の外周を床で埋めておく。
                 if (x * y == 0 || x == width - 1 || y == height - 1)
                 {
-                    _maze[x, y] = _PATH;
+                    _maze[x, y] = PATH;
                 }
                 // それ以外を壁で埋める。
                 else
                 {
-                    _maze[x, y] = _WALL;
+                    _maze[x, y] = WALL;
                 }
             }
         }
@@ -58,7 +58,7 @@ public class HoleDigging
             {
                 if (x * y == 0 || x == width - 1 || y == height - 1)
                 {
-                    _maze[x, y] = _WALL;
+                    _maze[x, y] = WALL;
                 }
             }
         }
@@ -76,10 +76,10 @@ public class HoleDigging
             // 拡張できる方向を格納するリスト
             List<Direction> dirs = new(4);
 
-            if (maze[x, y - 1] == _WALL && maze[x, y - 2] == _WALL) dirs.Add(Direction.UP);
-            if (maze[x, y + 1] == _WALL && maze[x, y + 2] == _WALL) dirs.Add(Direction.DOWN);
-            if (maze[x - 1, y] == _WALL && maze[x - 2, y] == _WALL) dirs.Add(Direction.LEFT);
-            if (maze[x + 1, y] == _WALL && maze[x + 2, y] == _WALL) dirs.Add(Direction.RIGHT);
+            if (maze[x, y - 1] == WALL && maze[x, y - 2] == WALL) dirs.Add(Direction.UP);
+            if (maze[x, y + 1] == WALL && maze[x, y + 2] == WALL) dirs.Add(Direction.DOWN);
+            if (maze[x - 1, y] == WALL && maze[x - 2, y] == WALL) dirs.Add(Direction.LEFT);
+            if (maze[x + 1, y] == WALL && maze[x + 2, y] == WALL) dirs.Add(Direction.RIGHT);
 
             // 拡張できる方向がなくなったら、ループを抜ける。
             if (dirs.Count == 0) break;
@@ -124,7 +124,7 @@ public class HoleDigging
 
     private void SetPath(int[,] maze, int x, int y)
     {
-        maze[x, y] = _PATH;
+        maze[x, y] = PATH;
         // x, yが共に奇数だったら、拡張開始座標候補のリストに追加する。
         if (x % 2 != 0 && y % 2 != 0)
         {
@@ -136,8 +136,8 @@ public class HoleDigging
     public int GetMazeWidth() => _maze.GetLength(0);
     public int GetMazeHeight() => _maze.GetLength(1);
 
-    private const int _WALL = 0;
-    private const int _PATH = 1;
+    private const int WALL = 0;
+    private const int PATH = 1;
 
     private enum Direction : byte
     {
