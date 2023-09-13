@@ -1,19 +1,29 @@
-using UnityEngine;
-
 // 日本語対応
-public class Cell : MonoBehaviour
+public class Cell
 {
-    public int Row { get; set; } = 0;
-    public int Column { get; set; } = 0;
+    public int Row => _row;
+    public int Column => _column;
     public Cell Parent { get; set; } = null;  // 親ノード
-    public float TotalCost => _actualCost + _heuristicCost;  // 実コスト + 推定コスト
-    public float ActualCost { get => _actualCost; set => _actualCost = value; }  // 実コスト
-    public float HeuristicCost { get => _heuristicCost; set => _heuristicCost = value; }  // 推定コスト
-    public CellState State { get => _cellState; set => _cellState = value; }  // セルの状態
+    public bool IsWaldable => _isWaldable;  // このCellが通れるかどうか
+    public float TotalCost => ActualCost + HeuristicCost;  // 合計コスト = 実コスト + 推定コスト
+    public float ActualCost { get; set; } = 0f;  // 実コスト = スタートからどのくらい進んだか
+    public float HeuristicCost { get; set; } = 0f;  // 推定コスト = ゴールからどのくらい離れているか
+    public CellState State { get; set; } = CellState.None;  // セルの状態
 
-    [SerializeField] private CellState _cellState = CellState.None;
-    private float _actualCost = 0f;
-    private float _heuristicCost = 0f;
+    private int _row = 0;
+    private int _column = 0;
+    private bool _isWaldable = false;
+
+    /// <summary>このCellに経路探索においての基本情報を入れる</summary>
+    /// <param name="row">行番号</param>
+    /// <param name="column">列番号</param>
+    /// <param name="isWalkable">このCellに移動できるかどうか</param>
+    public Cell(int row, int column, bool isWalkable)
+    {
+        _row = row;
+        _column = column;
+        _isWaldable = isWalkable;
+    }
 }
 
 public enum CellState
@@ -23,5 +33,4 @@ public enum CellState
     Close = 2,
     Start = 4,
     Goal = 8,
-    CannotOpen = 16,
 }
