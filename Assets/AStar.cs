@@ -5,30 +5,32 @@ using System.Linq;
 // 日本語対応
 public class AStar
 {
-    private readonly int _row = 0;
-    private readonly int _column = 0;
     private readonly Cell[,] _grid = null;
     private List<Cell> _openCells = new List<Cell>();
     private HashSet<Cell> _closeCells = new HashSet<Cell>();
     private List<Cell> _neighborCells = new List<Cell>(4);
 
-    public AStar(int row, int column)
+    public AStar(int width, int height)
     {
-        _row = row;
-        _column = column;
-        _grid = new Cell[row, column];
+        _grid = new Cell[width, height];
     }
 
-    public void FindPath(int startRow, int startColumn, int targetRow, int targetColumn)
+    /// <summary>最短経路を探索する</summary>
+    /// <param name="startX">開始地点の水平方向座標</param>
+    /// <param name="startY">開始地点の垂直方向座標</param>
+    /// <param name="targetX">目標地点の水平方向座標</param>
+    /// <param name="targetY">目標地点の垂直方向座標</param>
+    /// <returns>最短経路となるCellが格納されたリスト</returns>
+    public List<Cell> FindPath(int startX, int startY, int targetX, int targetY)
     {
-        if (!TryGetCell(startRow, startColumn, out Cell startCell)
-            || !TryGetCell(targetRow, targetColumn, out Cell targetCell))
+        if (!TryGetCell(startX, startY, out Cell startCell)
+            || !TryGetCell(targetX, targetY, out Cell targetCell))
         {
             throw new ArgumentOutOfRangeException();
         }
         _openCells.Add(startCell);
 
-        while(_openCells.Count > 0)
+        while (_openCells.Count > 0)
         {
             Cell currentCell = FindLowestCostCell();
             _openCells.Remove(currentCell);
@@ -36,15 +38,27 @@ public class AStar
 
             if (currentCell == targetCell)
             {
-                return;  // 最短経路を返す
+                return ConstructPath(targetCell);  // 最短経路を返す
             }
             FindNeighborCell(currentCell);
 
             foreach (var neighbor in _neighborCells)
             {
                 if (!neighbor.IsWalkable || _closeCells.Contains(neighbor)) continue;
+
+                int tmpActualCost = neighbor.ActualCost + CalcDistance(currentCell, neighbor);
+
+                if (!_openCells.Contains(neighbor) || /*←need?*/ tmpActualCost < neighbor.ActualCost)
+                {
+                    neighbor.Parent = currentCell;
+                    neighbor.ActualCost = tmpActualCost;
+                    neighbor.HeuristicCost = CalcDistance(neighbor, targetCell);
+
+                    if (!_openCells.Contains(neighbor)) _openCells.Add(neighbor);
+                }
             }
         }
+        return null;
     }
 
     /// <summary>2次元配列に受け取った行番号・列番号のCellが取得できるかを判定する</summary>
@@ -85,9 +99,24 @@ public class AStar
     }
 
     /// <summary>2つのCellの距離を計算する</summary>
-    /// <param name="from"></param>
-    /// <param name="to"></param>
-    /// <returns>計算されたCellの直線距離</returns>
-    private float CalcDistance(Cell from, Cell to) =>
-        MathF.Abs(from.Row - to.Row) + MathF.Abs(from.Column - to.Column);
+    /// <returns>計算されたCellのマンハッタン距離</returns>
+    private int CalcDistance(Cell from, Cell to) =>
+        (int)(MathF.Abs(from.Row - to.Row) + MathF.Abs(from.Column - to.Column));
+
+    /// <summary>受け取ったCellからスタート地点までの経路を構築する</summary>
+    /// <param name="targetCell">ここまでの経路を知りたいCell</param>
+    /// <returns>最短経路</returns>
+    private List<Cell> ConstructPath(Cell targetCell)
+    {
+        List<Cell> path = new List<Cell>();
+        Cell currentCell = targetCell;
+
+        while (currentCell != null)
+        {
+            path.Add(currentCell);
+            currentCell = currentCell.Parent;
+        }
+        path.Reverse();
+        return path;
+    }
 }
