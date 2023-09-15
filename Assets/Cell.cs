@@ -6,7 +6,7 @@ public class Cell
     public Cell Parent { get; set; } = null;  // 親ノード
     public bool IsWalkable => _isWalkable;  // このCellが通れるかどうか
     public float TotalCost => ActualCost + HeuristicCost;  // 合計コスト = 実コスト + 推定コスト
-    public float ActualCost { get; set; } = 0f;  // 実コスト = スタートからどのくらい進んだか
+    public int ActualCost { get; set; } = 0;  // 実コスト = スタートからどのくらい進んだか
     public float HeuristicCost { get; set; } = 0f;  // 推定コスト = ゴールからどのくらい離れているか
 
     private int _row = 0;
