@@ -5,6 +5,12 @@ using System.Linq;
 // 日本語対応
 public class AStar
 {
+    public Cell this[int row, int column]
+    {
+        get => _grid[row, column];
+        set => _grid[row, column] = value;
+    }
+
     private readonly Cell[,] _grid = null;
     private List<Cell> _openCells = new List<Cell>();
     private HashSet<Cell> _closeCells = new HashSet<Cell>();
