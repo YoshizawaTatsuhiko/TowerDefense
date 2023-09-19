@@ -18,17 +18,6 @@ public class Cell : MonoBehaviour
 
     private int _row = 0;
     private int _column = 0;
-
-    /// <summary>このCellに経路探索においての基本情報を入れる</summary>
-    /// <param name="row">行番号</param>
-    /// <param name="column">列番号</param>
-    /// <param name="isWalkable">このCellに移動できるかどうか</param>
-    public Cell(int row, int column, bool isWalkable)
-    {
-        _row = row;
-        _column = column;
-        _isWalkable = isWalkable;
-    }
 }
 
 public enum CellState
