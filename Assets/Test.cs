@@ -25,15 +25,18 @@ public class Test : MonoBehaviour
     /// <exception cref="System.Exception"></exception>
     private void ApplyMatching(in int[,] map)
     {
-        for(int i = 0; i < map.GetLength(0); i++)
-            for (int j = 0; j < map.GetLength(1); j++)
+        for(int r = 0; r < map.GetLength(0); r++)
+            for (int c = 0; c < map.GetLength(1); c++)
             {
-                _aStar[i, j] = map[i, j] switch
+                _aStar[r, c] = map[r, c] switch
                 {
-                    0 => new Cell(i, j, isWalkable: false),
-                    1 => new Cell(i, j, isWalkable: true),
-                    _ => throw new System.Exception()
+                    0 => Instantiate(_wall, SetCenter(r, c), Quaternion.identity, transform),
+                    1 => Instantiate(_path),
+                    _ => throw new System.IndexOutOfRangeException()
                 };
             }
     }
+
+    private Vector2 SetCenter(int row, int column)
+        => new Vector2(row - _width / 2 + 0.5f, column - _height / 2 + 0.5f);
 }
