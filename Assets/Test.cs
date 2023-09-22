@@ -25,6 +25,21 @@ public class Test : MonoBehaviour
     {
         _aStar = new AStar(_map.GetLength(0), _map.GetLength(1));
         ApplyMatching(in _map);
+        _start = GetPath();
+        _goal = GetPath();
+        List<Cell> shortestPath = _aStar.FindPath(_start.Row, _start.Column, _goal.Row, _goal.Column);
+
+        if (shortestPath == null) throw new System.NullReferenceException();
+        else
+        {
+            Debug.Log($"Start Position = {_start.Row}:{_start.Column}");
+            Debug.Log($"Goal Position = {_goal.Row}:{_goal.Column}");
+
+            foreach (var cell in shortestPath)
+            {
+                ChangeCellColor(cell, Color.red);
+            }
+        }
     }
 
     /// <summary>受け取ったマップに対応する情報を経路探索に渡す</summary>
@@ -53,5 +68,20 @@ public class Test : MonoBehaviour
     private void ChangeCellColor(Cell cell, Color color)
     {
         if (cell.TryGetComponent(out SpriteRenderer renderer)) renderer.color = color;
+    }
+
+    private Cell GetPath()
+    {
+        int randomR = 0;
+        int randomC = 0;
+
+        do
+        {
+            randomR = Random.Range(0, _map.GetLength(0));
+            randomC = Random.Range(0, _map.GetLength(1));
+        }
+        while (!_aStar[randomR, randomC].IsWalkable);
+
+        return _aStar[randomR, randomC];
     }
 }
