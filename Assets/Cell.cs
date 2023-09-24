@@ -3,8 +3,8 @@ using UnityEngine;
 // 日本語対応
 public class Cell : MonoBehaviour
 {
-    public int Row => _row;
-    public int Column => _column;
+    public int Row { get; set; } = 0;
+    public int Column { get; set; } = 0;
     public Cell Parent { get; set; } = null;  // 親ノード
     public bool IsWalkable => _isWalkable;  // このCellが通れるかどうか
     public float TotalCost => ActualCost + HeuristicCost;  // 合計コスト = 実コスト + 推定コスト
@@ -15,9 +15,6 @@ public class Cell : MonoBehaviour
     [SerializeField] private int _actualCost = 0;
     [Tooltip("このCellに移動できるかどうか")]
     [SerializeField] private bool _isWalkable = false;
-
-    private int _row = 0;
-    private int _column = 0;
 }
 
 public enum CellState
