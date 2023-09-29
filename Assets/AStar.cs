@@ -14,7 +14,7 @@ public class AStar
     private readonly Cell[,] _grid = null;
     private List<Cell> _openCells = new List<Cell>();
     private HashSet<Cell> _closeCells = new HashSet<Cell>();
-    private List<Cell> _neighborCells = new List<Cell>(4);
+    private Cell[] _neighborCells = new Cell[4];
 
     public AStar(int width, int height)
     {
@@ -50,6 +50,7 @@ public class AStar
 
             foreach (var neighbor in _neighborCells)
             {
+                if (neighbor == null) break;
                 if (!neighbor.IsWalkable || _closeCells.Contains(neighbor)) continue;
 
                 int tmpActualCost = neighbor.ActualCost + CalcDistance(currentCell, neighbor);
@@ -95,13 +96,14 @@ public class AStar
     /// <param name="target">基準となるCell</param>
     private void FindNeighborCell(Cell target)
     {
-        _neighborCells.Clear();
+        Array.Fill(_neighborCells, null);
         int r = target.Row, c = target.Column;
+        int index = 0;
 
-        { if (TryGetCell(r + 1, c, out Cell neighbor)) _neighborCells.Add(neighbor); } // Up
-        { if (TryGetCell(r - 1, c, out Cell neighbor)) _neighborCells.Add(neighbor); } // Down
-        { if (TryGetCell(r, c - 1, out Cell neighbor)) _neighborCells.Add(neighbor); } // Left
-        { if (TryGetCell(r, c + 1, out Cell neighbor)) _neighborCells.Add(neighbor); } // Right
+        { if (TryGetCell(r + 1, c, out Cell neighbor)) { _neighborCells[index] = neighbor; index++; } } // Up
+        { if (TryGetCell(r - 1, c, out Cell neighbor)) { _neighborCells[index] = neighbor; index++; } } // Down
+        { if (TryGetCell(r, c - 1, out Cell neighbor)) { _neighborCells[index] = neighbor; index++; } } // Left
+        { if (TryGetCell(r, c + 1, out Cell neighbor)) { _neighborCells[index] = neighbor; } }          // Right
     }
 
     /// <summary>2つのCellの距離を計算する</summary>
