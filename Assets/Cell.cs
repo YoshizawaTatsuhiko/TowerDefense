@@ -1,8 +1,7 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 // 日本語対応
-public class Cell : MonoBehaviour, IPointerClickHandler
+public class Cell : MonoBehaviour
 {
     public int Row { get; set; } = 0;
     public int Column { get; set; } = 0;
@@ -16,18 +15,6 @@ public class Cell : MonoBehaviour, IPointerClickHandler
     [SerializeField] private int _actualCost = 0;
     [Tooltip("このCellに移動できるかどうか")]
     [SerializeField] private bool _isWalkable = false;
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (Input.GetMouseButtonDown(0))  // Left Click
-        {
-
-        }
-        else if (Input.GetMouseButtonDown(1))  // Right Click
-        {
-
-        }
-    }
 }
 
 public enum CellState
