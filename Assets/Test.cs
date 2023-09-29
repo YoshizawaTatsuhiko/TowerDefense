@@ -19,26 +19,19 @@ public class Test : MonoBehaviour
     private AStar _aStar = null;
     private Cell _start = null;
     private Cell _goal = null;
+    private List<Cell> _pathList = new List<Cell>();
+    private List<Cell> _shortestPath = new List<Cell>();
 
     private void Start()
     {
         _aStar = new AStar(_map.GetLength(0), _map.GetLength(1));
-        ApplyMatching(in _map);
+        ApplyMatching(_map);
         _start = GetRandomPath();
-        _goal = GetRandomPath(_start.Row, _start.Column);
-        List<Cell> shortestPath = _aStar.FindPath(_start.Row, _start.Column, _goal.Row, _goal.Column);
-
-        if (shortestPath == null) throw new System.NullReferenceException();
-        else
-        {
-            Debug.Log($"Start Position = {_start.Row}:{_start.Column}");
-            Debug.Log($"Goal Position = {_goal.Row}:{_goal.Column}");
-
-            foreach (var cell in shortestPath)
-            {
-                ChangeCellColor(cell, Color.red);
-            }
-        }
+        _goal = GetRandomPath(_start);
+        _shortestPath = _aStar.FindPath(_start.Row, _start.Column, _goal.Row, _goal.Column);
+        PaintShortestPath(_shortestPath);
+        ChangeCellColor(_start, Color.yellow);
+        ChangeCellColor(_goal, Color.blue);
     }
 
     /// <summary>受け取ったマップに対応する情報を経路探索に渡す</summary>
@@ -60,6 +53,7 @@ public class Test : MonoBehaviour
                 cell.Row = r;
                 cell.Column = c;
                 _aStar[r, c] = cell;
+                if (cell.IsWalkable) _pathList.Add(cell);
             }
     }
 
@@ -73,23 +67,44 @@ public class Test : MonoBehaviour
     private Vector2 SetCenter(int row, int column)
         => new Vector2(column - _map.GetLength(1) / 2 + 0.5f, row - _map.GetLength(0) / 2 + 0.5f);
 
-    private void ChangeCellColor(Cell cell, Color color)
+    private void ChangeCellColor(in Cell cell, Color color)
     {
         if (cell.TryGetComponent(out SpriteRenderer renderer)) renderer.color = color;
     }
 
-    private Cell GetRandomPath(int row = -1, int column = -1)
+    private Cell GetRandomPath(int excludeRow = -1, int excludeColumn = -1)
     {
-        int randomR = 0;
-        int randomC = 0;
+        int n = 0;
 
         do
         {
-            randomR = Random.Range(0, _map.GetLength(0));
-            randomC = Random.Range(0, _map.GetLength(1));
+            n = Random.Range(0, _pathList.Count);
         }
-        while (!_aStar[randomR, randomC].IsWalkable && randomR == row && randomC == column);
+        while (_pathList[n].Row == excludeRow && _pathList[n].Column == excludeColumn);
 
-        return _aStar[randomR, randomC];
+        return _pathList[n];
+    }
+
+    private Cell GetRandomPath(in Cell excludeCell)
+    {
+        int n = 0;
+
+        do
+        {
+            n = Random.Range(0, _pathList.Count);
+        }
+        while (_pathList[n] == excludeCell);
+
+        return _pathList[n];
+    }
+
+    private void PaintShortestPath(in List<Cell> cellList)
+    {
+        if (cellList == null) return;
+
+        foreach (var cell in cellList)
+        {
+            ChangeCellColor(cell, Color.red);
+        }
     }
 }
