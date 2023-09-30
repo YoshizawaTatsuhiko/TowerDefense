@@ -5,6 +5,24 @@ using System.Linq;
 // 日本語対応
 public class AStar
 {
+    public class Cell
+    {
+        public int Row { get; private set; } = 0;
+        public int Column { get; private set; } = 0;
+        public Cell Parent { get; set; } = null;  // 親ノード
+        public bool IsWalkable { get; private set; } = true;  // このCellが通れるかどうか
+        public float TotalCost => ActualCost + HeuristicCost;  // 合計コスト = 実コスト + 推定コスト
+        public float ActualCost { get; set; } = 0f;  // 実コスト = スタートからどのくらい進んだか
+        public float HeuristicCost { get; set; } = 0f;  // 推定コスト = ゴールからどのくらい離れているか
+
+        public Cell(int row, int column, bool isWalkable)
+        {
+            Row = row;
+            Column = column;
+            IsWalkable = isWalkable;
+        }
+    }
+
     public Cell this[int row, int column]
     {
         get => _grid[row, column];
@@ -27,7 +45,7 @@ public class AStar
     /// <param name="targetX">目標地点の水平方向座標</param>
     /// <param name="targetY">目標地点の垂直方向座標</param>
     /// <returns>最短経路となるCellが格納されたリスト</returns>
-    public List<Cell> FindPath(int startX, int startY, int targetX, int targetY)
+    public List<(int, int)> FindPath(int startX, int startY, int targetX, int targetY)
     {
         if (!TryGetCell(startX, startY, out Cell startCell)
             || !TryGetCell(targetX, targetY, out Cell targetCell))
@@ -44,7 +62,7 @@ public class AStar
 
             if (currentCell == targetCell)
             {
-                return ConstructPath(targetCell);  // 最短経路を返す
+                return ConstructPath(targetCell.Row, targetCell.Column);  // 最短経路を返す
             }
             FindNeighborCell(currentCell);
 
@@ -53,7 +71,7 @@ public class AStar
                 if (neighbor == null) break;
                 if (!neighbor.IsWalkable || _closeCells.Contains(neighbor)) continue;
 
-                int tmpActualCost = neighbor.ActualCost + CalcDistance(currentCell, neighbor);
+                float tmpActualCost = neighbor.ActualCost + CalcDistance(currentCell, neighbor);
 
                 if (!_openCells.Contains(neighbor) || /*←need?*/ tmpActualCost < neighbor.ActualCost)
                 {
@@ -108,20 +126,20 @@ public class AStar
 
     /// <summary>2つのCellの距離を計算する</summary>
     /// <returns>計算されたCellのマンハッタン距離</returns>
-    private int CalcDistance(Cell from, Cell to) =>
-        (int)(MathF.Abs(from.Row - to.Row) + MathF.Abs(from.Column - to.Column));
+    private float CalcDistance(Cell from, Cell to) =>
+        (MathF.Abs(from.Row - to.Row) + MathF.Abs(from.Column - to.Column));
 
     /// <summary>受け取ったCellからスタート地点までの経路を構築する</summary>
     /// <param name="targetCell">ここまでの経路を知りたいCell</param>
     /// <returns>最短経路</returns>
-    private List<Cell> ConstructPath(Cell targetCell)
+    private List<(int, int)> ConstructPath(int targetRow, int targetColumn)
     {
-        List<Cell> path = new List<Cell>();
-        Cell currentCell = targetCell;
+        List<(int, int)> path = new List<(int, int)>();
+        Cell currentCell = _grid[targetRow, targetColumn];
 
         while (currentCell != null)
         {
-            path.Add(currentCell);
+            path.Add((currentCell.Row, currentCell.Column));
             currentCell = currentCell.Parent;
         }
         path.Reverse();
