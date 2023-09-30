@@ -4,32 +4,36 @@ using UnityEngine;
 // 日本語対応
 public class Test : MonoBehaviour
 {
-    [SerializeField] private Cell _wall = null;
-    [SerializeField] private Cell _path = null;
+    [SerializeField] private CellInfo _wall = null;
+    [SerializeField] private CellInfo _path = null;
 
     private int[,] _map =
     {
-        { 0, 1, 1, 1, 0, 1 },
-        { 1, 0, 1, 1, 1, 1 },
-        { 1, 1, 0, 1, 1, 1 },
-        { 1, 1, 1, 0, 1, 1 },
-        { 1, 1, 0, 1, 1, 0 },
-        { 0, 1, 1, 1, 1, 0 },
+        { 1,1,1,0,0,1,1,1,0,0 },
+        { 1,1,0,1,0,0,0,1,0,0 },
+        { 0,1,1,1,0,0,1,1,1,0 },
+        { 0,1,0,0,0,0,1,0,1,0 },
+        { 1,1,1,0,1,1,1,0,1,0 },
+        { 1,0,1,1,0,0,0,0,1,1 },
+        { 0,0,1,0,0,0,0,0,1,0 },
+        { 1,0,0,1,1,0,0,0,1,0 },
+        { 1,1,1,1,1,1,1,1,1,1 },
+        { 1,0,0,0,0,0,0,0,0,0 },
     };
     private AStar _aStar = null;
-    private Cell _start = null;
-    private Cell _goal = null;
-    private List<Cell> _pathList = new List<Cell>();
-    private List<Cell> _shortestPath = new List<Cell>();
+    private CellInfo _start = null;
+    private CellInfo _goal = null;
+    private List<CellInfo> _pathList = new List<CellInfo>();
+    private List<CellInfo> _shortestPath = new List<CellInfo>();
 
     private void Start()
     {
         _aStar = new AStar(_map.GetLength(0), _map.GetLength(1));
-        ApplyMatching(_map);
+        //ApplyMatching(_map);
         _start = GetRandomPath();
         _goal = GetRandomPath(_start);
-        _shortestPath = _aStar.FindPath(_start.Row, _start.Column, _goal.Row, _goal.Column);
-        PaintShortestPath(_shortestPath);
+        //_shortestPath = _aStar.FindPath(_start.Row, _start.Column, _goal.Row, _goal.Column);
+        //PaintShortestPath(_shortestPath);
         ChangeCellColor(_start, Color.yellow);
         ChangeCellColor(_goal, Color.blue);
     }
@@ -39,7 +43,7 @@ public class Test : MonoBehaviour
     /// <exception cref="System.IndexOutOfRangeException"></exception>
     private void ApplyMatching(in int[,] map)
     {
-        Cell cell = null;
+        CellInfo cell = null;
 
         for (int r = 0; r < _map.GetLength(0); r++)
             for (int c = 0; c < _map.GetLength(1); c++)
@@ -50,9 +54,7 @@ public class Test : MonoBehaviour
                     1 => Generate(_path, r, c),
                     _ => throw new System.IndexOutOfRangeException()
                 };
-                cell.Row = r;
-                cell.Column = c;
-                _aStar[r, c] = cell;
+                _aStar[r, c] = new AStar.Cell(r, c, cell.IsWalkable);
                 if (cell.IsWalkable) _pathList.Add(cell);
             }
     }
@@ -67,12 +69,12 @@ public class Test : MonoBehaviour
     private Vector2 SetCenter(int row, int column)
         => new Vector2(column - _map.GetLength(1) / 2 + 0.5f, row - _map.GetLength(0) / 2 + 0.5f);
 
-    private void ChangeCellColor(in Cell cell, Color color)
+    private void ChangeCellColor(in CellInfo cell, Color color)
     {
         if (cell.TryGetComponent(out SpriteRenderer renderer)) renderer.color = color;
     }
 
-    private Cell GetRandomPath(int excludeRow = -1, int excludeColumn = -1)
+    private CellInfo GetRandomPath(in CellInfo excludeCell = null)
     {
         int n = 0;
 
@@ -80,25 +82,12 @@ public class Test : MonoBehaviour
         {
             n = Random.Range(0, _pathList.Count);
         }
-        while (_pathList[n].Row == excludeRow && _pathList[n].Column == excludeColumn);
+        while (excludeCell ? _pathList[n] == excludeCell : false);
 
         return _pathList[n];
     }
 
-    private Cell GetRandomPath(in Cell excludeCell)
-    {
-        int n = 0;
-
-        do
-        {
-            n = Random.Range(0, _pathList.Count);
-        }
-        while (_pathList[n] == excludeCell);
-
-        return _pathList[n];
-    }
-
-    private void PaintShortestPath(in List<Cell> cellList)
+    private void PaintShortestPath(in List<CellInfo> cellList)
     {
         if (cellList == null) return;
 
