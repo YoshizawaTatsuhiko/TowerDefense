@@ -1,8 +1,10 @@
 using UnityEngine;
 
 // 日本語対応
-public class CellInfo : MonoBehaviour
+public class MapCell : MonoBehaviour
 {
+    public int Row { get; set; } = 0;
+    public int Column { get; set; } = 0;
     public float VisitedCost => _visitedCost;
     public bool IsWalkable => _isWalkable;  // このCellが通れるかどうか
 
