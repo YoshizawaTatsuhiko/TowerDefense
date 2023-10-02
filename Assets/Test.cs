@@ -1,11 +1,13 @@
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 // 日本語対応
 public class Test : MonoBehaviour
 {
-    [SerializeField] private CellInfo _wall = null;
-    [SerializeField] private CellInfo _path = null;
+    [SerializeField] private MapCell _wall = null;
+    [SerializeField] private MapCell _path = null;
 
     private int[,] _map =
     {
@@ -21,19 +23,19 @@ public class Test : MonoBehaviour
         { 1,0,0,0,0,0,0,0,0,0 },
     };
     private AStar _aStar = null;
-    private CellInfo _start = null;
-    private CellInfo _goal = null;
-    private List<CellInfo> _pathList = new List<CellInfo>();
-    private List<CellInfo> _shortestPath = new List<CellInfo>();
+    private MapCell[,] _mapCells = null;
+    private MapCell _start = null;
+    private MapCell _goal = null;
+    private List<MapCell> _pathList = new List<MapCell>();
 
     private void Start()
     {
         _aStar = new AStar(_map.GetLength(0), _map.GetLength(1));
-        //ApplyMatching(_map);
+        ApplyMatching(_map);
         _start = GetRandomPath();
         _goal = GetRandomPath(_start);
-        //_shortestPath = _aStar.FindPath(_start.Row, _start.Column, _goal.Row, _goal.Column);
-        //PaintShortestPath(_shortestPath);
+        var _shortestPath = _aStar.FindPath(_start.Row, _start.Column, _goal.Row, _goal.Column);
+        PaintPath(_shortestPath);
         ChangeCellColor(_start, Color.yellow);
         ChangeCellColor(_goal, Color.blue);
     }
@@ -43,7 +45,8 @@ public class Test : MonoBehaviour
     /// <exception cref="System.IndexOutOfRangeException"></exception>
     private void ApplyMatching(in int[,] map)
     {
-        CellInfo cell = null;
+        MapCell cell = null;
+        _mapCells = new MapCell[map.GetLength(0), map.GetLength(1)];
 
         for (int r = 0; r < _map.GetLength(0); r++)
             for (int c = 0; c < _map.GetLength(1); c++)
@@ -55,26 +58,12 @@ public class Test : MonoBehaviour
                     _ => throw new System.IndexOutOfRangeException()
                 };
                 _aStar[r, c] = new AStar.Cell(r, c, cell.IsWalkable);
+                _mapCells[r, c] = cell;
                 if (cell.IsWalkable) _pathList.Add(cell);
             }
     }
 
-    private T Generate<T>(T obj, int row, int column) where T : MonoBehaviour
-    {
-        var t = Instantiate(obj, SetCenter(row, column), Quaternion.identity, transform);
-        t.gameObject.name += $"({row}, {column})";
-        return t;
-    }
-
-    private Vector2 SetCenter(int row, int column)
-        => new Vector2(column - _map.GetLength(1) / 2 + 0.5f, row - _map.GetLength(0) / 2 + 0.5f);
-
-    private void ChangeCellColor(in CellInfo cell, Color color)
-    {
-        if (cell.TryGetComponent(out SpriteRenderer renderer)) renderer.color = color;
-    }
-
-    private CellInfo GetRandomPath(in CellInfo excludeCell = null)
+    private MapCell GetRandomPath(in MapCell excludeCell = null)
     {
         int n = 0;
 
@@ -87,13 +76,41 @@ public class Test : MonoBehaviour
         return _pathList[n];
     }
 
-    private void PaintShortestPath(in List<CellInfo> cellList)
+    private MapCell GetRandomPath(in MapCell[] excludeCells)
     {
-        if (cellList == null) return;
+        int n = 0;
 
-        foreach (var cell in cellList)
+        do
         {
-            ChangeCellColor(cell, Color.red);
+            n = Random.Range(0, _pathList.Count);
+        }
+        while (excludeCells.Contains(_pathList[n]));
+
+        return _pathList[n];
+    }
+
+    private T Generate<T>(T obj, int row, int column) where T : MonoBehaviour
+    {
+        var t = Instantiate(obj, SetCenter(row, column), Quaternion.identity, transform);
+        t.gameObject.name += $"({row}, {column})";
+        return t;
+    }
+
+    private Vector2 SetCenter(int row, int column)
+        => new Vector2(column - _map.GetLength(1) / 2 + 0.5f, row - _map.GetLength(0) / 2 + 0.5f);
+
+    private void ChangeCellColor<T>(in T gameObject, Color color) where T : MonoBehaviour
+    {
+        if (gameObject.TryGetComponent(out SpriteRenderer renderer)) renderer.color = color;
+    }
+
+    private void PaintPath(in List<AStar.Cell> pathList)
+    {
+        if (pathList == null) return;
+
+        foreach (var cell in pathList)
+        {
+            ChangeCellColor(_mapCells[cell.Row, cell.Column], Color.red);
         }
     }
 }
