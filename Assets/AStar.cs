@@ -45,7 +45,7 @@ public class AStar
     /// <param name="targetX">目標地点の水平方向座標</param>
     /// <param name="targetY">目標地点の垂直方向座標</param>
     /// <returns>最短経路となるCellが格納されたリスト</returns>
-    public List<(int, int)> FindPath(int startX, int startY, int targetX, int targetY)
+    public List<Cell> FindPath(int startX, int startY, int targetX, int targetY)
     {
         if (!TryGetCell(startX, startY, out Cell startCell)
             || !TryGetCell(targetX, targetY, out Cell targetCell))
@@ -62,7 +62,7 @@ public class AStar
 
             if (currentCell == targetCell)
             {
-                return ConstructPath(targetCell.Row, targetCell.Column);  // 最短経路を返す
+                return ConstructPath(targetCell);  // 最短経路の座標を返す
             }
             FindNeighborCell(currentCell);
 
@@ -130,16 +130,15 @@ public class AStar
         (MathF.Abs(from.Row - to.Row) + MathF.Abs(from.Column - to.Column));
 
     /// <summary>受け取ったCellからスタート地点までの経路を構築する</summary>
-    /// <param name="targetCell">ここまでの経路を知りたいCell</param>
     /// <returns>最短経路</returns>
-    private List<(int, int)> ConstructPath(int targetRow, int targetColumn)
+    private List<Cell> ConstructPath(in Cell targetCell)
     {
-        List<(int, int)> path = new List<(int, int)>();
-        Cell currentCell = _grid[targetRow, targetColumn];
+        List<Cell> path = new List<Cell>();
+        Cell currentCell = targetCell;
 
         while (currentCell != null)
         {
-            path.Add((currentCell.Row, currentCell.Column));
+            path.Add(currentCell);
             currentCell = currentCell.Parent;
         }
         path.Reverse();
