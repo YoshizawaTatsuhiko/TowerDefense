@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 // 日本語対応
@@ -11,14 +10,14 @@ public class Test : MonoBehaviour
 
     private int[,] _map =
     {
-        { 1,1,1,0,0,1,1,1,0,0 },
+        { 1,1,1,1,1,1,1,1,0,0 },
         { 1,1,0,1,0,0,0,1,0,0 },
         { 0,1,1,1,0,0,1,1,1,0 },
         { 0,1,0,0,0,0,1,0,1,0 },
         { 1,1,1,0,1,1,1,0,1,0 },
-        { 1,0,1,1,0,0,0,0,1,1 },
-        { 0,0,1,0,0,0,0,0,1,0 },
-        { 1,0,0,1,1,0,0,0,1,0 },
+        { 1,0,1,1,1,0,0,0,1,1 },
+        { 1,0,1,0,0,0,0,0,1,0 },
+        { 1,0,1,1,1,0,0,0,1,0 },
         { 1,1,1,1,1,1,1,1,1,1 },
         { 1,0,0,0,0,0,0,0,0,0 },
     };
@@ -31,11 +30,12 @@ public class Test : MonoBehaviour
     private void Start()
     {
         _aStar = new AStar(_map.GetLength(0), _map.GetLength(1));
+        _mapCells = new MapCell[_map.GetLength(0), _map.GetLength(1)];
         ApplyMatching(_map);
         _start = GetRandomPath();
         _goal = GetRandomPath(_start);
-        var _shortestPath = _aStar.FindPath(_start.Row, _start.Column, _goal.Row, _goal.Column);
-        PaintPath(_shortestPath);
+        var result = _aStar.FindPath(_start.Row, _start.Column, _goal.Row, _goal.Column);
+        PaintPath(result.ShortestPath);
         ChangeCellColor(_start, Color.yellow);
         ChangeCellColor(_goal, Color.blue);
     }
@@ -46,7 +46,6 @@ public class Test : MonoBehaviour
     private void ApplyMatching(in int[,] map)
     {
         MapCell cell = null;
-        _mapCells = new MapCell[map.GetLength(0), map.GetLength(1)];
 
         for (int r = 0; r < _map.GetLength(0); r++)
             for (int c = 0; c < _map.GetLength(1); c++)
@@ -57,6 +56,7 @@ public class Test : MonoBehaviour
                     1 => Generate(_path, r, c),
                     _ => throw new System.IndexOutOfRangeException()
                 };
+                cell.SetCell(r, c);
                 _aStar[r, c] = new AStar.Cell(r, c, cell.IsWalkable);
                 _mapCells[r, c] = cell;
                 if (cell.IsWalkable) _pathList.Add(cell);
@@ -97,7 +97,7 @@ public class Test : MonoBehaviour
     }
 
     private Vector2 SetCenter(int row, int column)
-        => new Vector2(column - _map.GetLength(1) / 2 + 0.5f, row - _map.GetLength(0) / 2 + 0.5f);
+        => new Vector2(column - _map.GetLength(1) / 2 + 0.5f, -row + _map.GetLength(0) / 2 - 0.5f);
 
     private void ChangeCellColor<T>(in T gameObject, Color color) where T : MonoBehaviour
     {
