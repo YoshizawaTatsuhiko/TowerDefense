@@ -57,7 +57,7 @@ public class Test : MonoBehaviour
                     _ => throw new System.IndexOutOfRangeException()
                 };
                 cell.SetCell(r, c);
-                _aStar[r, c] = new AStar.Cell(r, c, cell.IsWalkable);
+                _aStar[r, c] = new Cell(r, c, cell.IsWalkable);
                 _mapCells[r, c] = cell;
                 if (cell.IsWalkable) _pathList.Add(cell);
             }
@@ -104,7 +104,7 @@ public class Test : MonoBehaviour
         if (gameObject.TryGetComponent(out SpriteRenderer renderer)) renderer.color = color;
     }
 
-    private void PaintPath(in List<AStar.Cell> pathList)
+    private void PaintPath(in List<Cell> pathList)
     {
         if (pathList == null) return;
 
