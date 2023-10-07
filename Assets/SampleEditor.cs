@@ -3,26 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-// 日本語対応
-public class SampleEditor : EditorWindow
+namespace StageCreator
 {
-    private string _text = null;
-
-    [MenuItem("Sample/Custum Editor")]
-    private static void ShowWindow()
+    // 日本語対応
+    public class SampleEditor : EditorWindow
     {
-        var editor = GetWindow<SampleEditor>();
-        editor.titleContent = new GUIContent("Sample");
-    }
+        private string _text = null;
 
-    private void OnGUI()
-    {
-        GUILayout.Label("OUT PUT");
-        _text = EditorGUILayout.TextField(_text, GUILayout.Height(100));
-
-        if (GUILayout.Button("Write Down"))
+        [MenuItem("Sample/Custum Editor")]
+        private static void ShowWindow()
         {
-            Debug.Log(_text);
+            var editor = GetWindow<SampleEditor>();
+            editor.titleContent = new GUIContent("Sample");
+        }
+
+        private void OnGUI()
+        {
+            GUILayout.Label("OUT PUT");
+            _text = EditorGUILayout.TextField(_text, GUILayout.Height(100));
+
+            if (GUILayout.Button("Write Down"))
+            {
+                Debug.Log(_text);
+            }
         }
     }
 }
