@@ -12,17 +12,17 @@ namespace StageCreator
     {
         public int Width => _width;
         public int Height => _height;
-        public Cell[,] Cells => _cells;
+        public Cell[,] Cells { get => _cells; set => _cells = value; }
 
         [SerializeField] private int _width = 0;
         [SerializeField] private int _height = 0;
         [HideInInspector]
         [SerializeField] private Cell[,] _cells = null;
 
-        private void OnValidate()
-        {
-            _cells = new Cell[Width, Height];
-        }
+        //private void OnValidate()
+        //{
+        //    _cells = new Cell[Width, Height];
+        //}
     }
 }
 
@@ -41,11 +41,9 @@ public class StageInspectorView : Editor
 
     public override void OnInspectorGUI()
     {
-
         SerializedProperty widthProperty = serializedObject.FindProperty("_width");
         SerializedProperty heightProperty = serializedObject.FindProperty("_height");
 
-        //EditorGUILayout.PropertyField(serializedObject.FindProperty("_width"));
         widthProperty.intValue = EditorGUILayout.IntField("Width", widthProperty.intValue);
         heightProperty.intValue = EditorGUILayout.IntField("Height", heightProperty.intValue);
 
@@ -63,18 +61,28 @@ public class StageInspectorView : Editor
             _heightCache = heightProperty.intValue;
             Debug.Log("高さが変更された。");
         }
+
+        if (GUILayout.Button("RESIZE"))
+        {
+            Debug.Log("Resizeされた");
+        }
     }
 
-    private void Resize2DArray<T>(ref T[,] twoDimentionalArray, int width, int height) where T : class
+    private void Resize2DArray<T>(ref T[,] twoDimArray, int width, int height) where T : new()
     {
         T[,] new2DArray = new T[width, height];
+        int oldWidth = twoDimArray.GetLength(0);
+        int oldHeight = twoDimArray.GetLength(1);
 
         for (int r = 0; r < width; r++)
         {
             for (int c = 0; c < height; c++)
             {
-                new2DArray[r, c] = twoDimentionalArray[r, c];
+                new2DArray[r, c] = IsIndexOutOfRange(r, c) ? new() : twoDimArray[r, c];
             }
         }
+        twoDimArray = new2DArray;
+
+        bool IsIndexOutOfRange(int r, int c) => r >= oldWidth || c >= oldHeight;
     }
 }
