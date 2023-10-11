@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 // 日本語対応
-namespace StageCreator
+namespace StageEditor
 {
     public class StageLogic
     {

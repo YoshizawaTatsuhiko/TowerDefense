@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace StageCreator
+namespace StageEditor
 {
     // 日本語対応
     public class SampleEditor : EditorWindow
