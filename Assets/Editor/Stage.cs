@@ -1,22 +1,38 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using StageCreator;
+using StageEditor;
 
 // 日本語対応
-namespace StageCreator
+namespace StageEditor
 {
     [CreateAssetMenu(menuName = "StageObject")]
     public class Stage : ScriptableObject
     {
         public int Width => _width;
         public int Height => _height;
-        public Cell[,] Cells { get => _cells; set => _cells = value; }
+        public Cell[,] Cells { get => _cells; private set => _cells = value; }
 
         [SerializeField] private int _width = 0;
         [SerializeField] private int _height = 0;
         [HideInInspector]
         [SerializeReference] private Cell[,] _cells = null;
+
+        private void OnEnable()
+        {
+            _cells = new Cell[_width, _height];
+        }
+
+        public void Init2DArray()
+        {
+            for (int r = 0; r < _width; r++)
+            {
+                for (int c = 0; c < _height; c++)
+                {
+                    _cells[r, c] = new Cell(r, c, true);
+                }
+            }
+        }
 
         public void Resize2DArray(int width, int height)
         {
@@ -44,6 +60,8 @@ public class StageInspectorView : Editor
     private SerializedProperty _widthProperty = null;
     private SerializedProperty _heightProperty = null;
     private Stage _stage = null;
+    private int _row = 0;
+    private int _column = 0;
 
     // インスペクターからの操作検知用
     private int _widthCache = 0;
@@ -56,12 +74,20 @@ public class StageInspectorView : Editor
         _heightProperty = serializedObject.FindProperty("_height");
         _heightCache = _heightProperty.intValue;
         _stage = target as Stage;
+        _stage.Init2DArray();
     }
 
     public override void OnInspectorGUI()
     {
-        _widthProperty.intValue = EditorGUILayout.IntField("Width", _widthProperty.intValue);
-        _heightProperty.intValue = EditorGUILayout.IntField("Height", _heightProperty.intValue);
+        serializedObject.Update();
+        _widthProperty.intValue = EditorGUILayout.IntField("Width", _widthCache);
+        _heightProperty.intValue = EditorGUILayout.IntField("Height", _heightCache);
+
+        int currentWidth = _stage.Cells.GetLength(0);
+        int currentHeight = _stage.Cells.GetLength(1);
+
+        _row = EditorGUILayout.IntSlider("Row" ,_row, 0, currentWidth);
+        _column = EditorGUILayout.IntSlider("Column", _column, 0, currentHeight);
 
         if (_widthCache != _widthProperty.intValue)
         {
@@ -77,10 +103,28 @@ public class StageInspectorView : Editor
             Debug.Log("高さが変更された。");
         }
 
-        if (GUILayout.Button("Resize"))
+        GUILayout.BeginHorizontal();
         {
-            _stage.Resize2DArray(_widthCache, _heightCache);
-            Debug.Log("Resizeされた");
+            if (GUILayout.Button("Resize"))
+            {
+                if (_stage.Cells.GetLength(0) == _widthCache || _stage.Cells.GetLength(1) == _heightCache)
+                {
+                    Debug.Log("There is no need to resize");
+                    return;
+                }
+                _stage.Resize2DArray(_widthCache, _heightCache);
+                Debug.Log("Resizeされた");
+            }
+
+            if (GUILayout.Button("Check"))
+            {
+                Debug.Log($"Current row = {_stage.Cells.GetLength(0)}, Current column = {_stage.Cells.GetLength(0)}");
+            }
         }
+        GUILayout.EndHorizontal();
+        Cell currentCell = _stage.Cells[_row, _column];
+        currentCell.IsWalkable = EditorGUILayout.Toggle("IsWalkable", currentCell.IsWalkable);
+        currentCell.ActualCost = EditorGUILayout.FloatField("ActualCost", currentCell.ActualCost);
+        serializedObject.ApplyModifiedProperties();
     }
 }
