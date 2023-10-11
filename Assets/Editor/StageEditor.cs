@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
+// 日本語対応
 namespace StageCreator
 {
-    // 日本語対応
+    public class StageLogic
+    {
+        Cell[,] cells = null;
+    }
+
     public class StageEditor : EditorWindow
     {
         [MenuItem("Sample/Stage Create")]
