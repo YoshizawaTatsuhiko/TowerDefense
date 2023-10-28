@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using PathFinding;
 
 // 日本語対応
 public class Test : MonoBehaviour
@@ -10,16 +11,26 @@ public class Test : MonoBehaviour
 
     private int[,] _map =
     {
-        { 1,1,1,1,1,1,1,1,0,0 },
-        { 1,1,0,1,0,0,0,1,0,0 },
-        { 0,1,1,1,0,0,1,1,1,0 },
-        { 0,1,0,0,0,0,1,0,1,0 },
-        { 1,1,1,0,1,1,1,0,1,0 },
-        { 1,0,1,1,1,0,0,0,1,1 },
-        { 1,0,1,0,0,0,0,0,1,0 },
-        { 1,0,1,1,1,0,0,0,1,0 },
-        { 1,1,1,1,1,1,1,1,1,1 },
-        { 1,0,0,0,0,0,0,0,0,0 },
+        {0,1,1,1,1,1,1,0,1,1,1,0,0,1,1,0,1,1,1,0},
+        {0,1,0,0,0,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0},
+        {0,1,0,1,1,0,1,0,1,0,0,0,0,1,0,0,1,0,1,0},
+        {0,1,0,1,0,0,1,1,1,1,0,1,0,1,1,1,1,0,1,0},
+        {0,1,1,1,0,1,1,0,0,1,1,1,0,1,0,0,1,0,1,0},
+        {0,0,0,1,1,0,1,1,0,0,0,1,0,1,1,0,1,0,1,0},
+        {1,1,1,1,1,1,0,1,1,0,1,1,0,0,0,0,1,0,1,0},
+        {1,1,0,1,0,1,0,0,1,0,0,0,0,0,1,0,1,0,1,0},
+        {0,1,0,0,0,0,0,0,1,1,1,1,1,0,1,0,1,0,1,0},
+        {0,1,1,1,1,0,1,1,1,0,0,1,1,0,1,0,1,0,1,0},
+        {0,1,0,0,1,0,0,0,1,1,0,1,0,1,1,0,1,1,1,0},
+        {0,1,1,0,1,1,1,0,1,0,0,1,0,1,1,0,1,0,0,0},
+        {0,0,1,0,1,0,1,1,1,1,0,1,0,1,0,0,0,0,1,0},
+        {1,0,0,0,1,0,1,0,0,1,1,1,0,1,0,1,1,0,1,0},
+        {1,1,1,1,1,1,1,0,1,1,0,1,0,1,1,1,0,1,1,0},
+        {0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0},
+        {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+        {0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
     };
     private AStar _aStar = null;
     private MapCell[,] _mapCells = null;
@@ -42,7 +53,7 @@ public class Test : MonoBehaviour
 
     /// <summary>受け取ったマップに対応する情報を経路探索に渡す</summary>
     /// <param name="map">ステージとなる地形の2次元配列</param>
-    /// <exception cref="System.IndexOutOfRangeException"></exception>
+    /// <exception cref="System.Exception"></exception>
     private void ApplyMatching(in int[,] map)
     {
         MapCell cell = null;
@@ -54,7 +65,7 @@ public class Test : MonoBehaviour
                 {
                     0 => Generate(_wall, r, c),
                     1 => Generate(_path, r, c),
-                    _ => throw new System.IndexOutOfRangeException()
+                    _ => throw new System.Exception()
                 };
                 cell.SetCell(r, c);
                 _aStar[r, c] = new Cell(r, c, cell.IsWalkable);
@@ -91,12 +102,12 @@ public class Test : MonoBehaviour
 
     private T Generate<T>(T obj, int row, int column) where T : MonoBehaviour
     {
-        var t = Instantiate(obj, SetCenter(row, column), Quaternion.identity, transform);
+        var t = Instantiate(obj, ConvertCenter(row, column), Quaternion.identity, transform);
         t.gameObject.name += $"({row}, {column})";
         return t;
     }
 
-    private Vector2 SetCenter(int row, int column)
+    private Vector2 ConvertCenter(int row, int column)
         => new Vector2(column - _map.GetLength(1) / 2 + 0.5f, -row + _map.GetLength(0) / 2 - 0.5f);
 
     private void ChangeCellColor<T>(in T gameObject, Color color) where T : MonoBehaviour
