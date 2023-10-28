@@ -8,7 +8,12 @@ public class DebugReload : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(_key))
+        ReloadCurrentScene(_key);
+    }
+
+    private void ReloadCurrentScene(KeyCode key)
+    {
+        if (Input.GetKeyDown(key))
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
