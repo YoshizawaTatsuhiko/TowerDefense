@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 
 // 日本語対応
-public class AStarPathResult
+namespace PathFinding
 {
-    public AStarPathResult()
+    public class AStarPathResult
     {
-        ShortestPath = new List<Cell>();
-    }
+        public AStarPathResult()
+        {
+            ShortestPath = new List<Cell>();
+        }
 
-    public List<Cell> ShortestPath = null;
+        public List<Cell> ShortestPath = null;
+    }
 }
