@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using StageEditor;
+using PathFinding;
 
 // 日本語対応
 namespace StageEditor
