@@ -15,11 +15,11 @@ namespace PathFinding
 
         /// <summary>経路探索に用いる情報が入った2次元配列</summary>
         private readonly Cell[,] _grid = null;
-        /// <summary>探索するCellが入る</summary>
+        /// <summary>次に探索する候補となるCellを入れる</summary>
         private List<Cell> _openCells = new List<Cell>();
-        /// <summary>探索済みのCellが入る</summary>
+        /// <summary>探索済みのCellを入れる</summary>
         private HashSet<Cell> _closeCells = new HashSet<Cell>();
-        /// <summary>ある１つのCellに隣接する４マスのCellが入る</summary>
+        /// <summary>ある１つのCellに隣接する４マスのCellを入れる</summary>
         private Cell[] _neighborCells = new Cell[4];
 
         public AStar(int width, int height)
@@ -40,15 +40,15 @@ namespace PathFinding
             {
                 throw new ArgumentOutOfRangeException();
             }
-            _openCells.Add(startCell);
+            _openCells.Add(startCell);  // 探索候補に追加する
 
-            while (_openCells.Count > 0)
+            while (_openCells.Count > 0)  // 探索候補がなくなったらループをやめる
             {
                 Cell currentCell = FindLowestCostCell();
-                _openCells.Remove(currentCell);
-                _closeCells.Add(currentCell);
+                _openCells.Remove(currentCell);  // 探索候補から削除する
+                _closeCells.Add(currentCell);  // 探索済みに追加する
 
-                if (currentCell == targetCell)
+                if (currentCell == targetCell)  // 目的のセルに到達したら、結果を返して関数を抜ける
                 {
                     return ConstructPath(targetCell);  // 構築した最短経路を返す
                 }
@@ -61,7 +61,7 @@ namespace PathFinding
 
                     float tmpActualCost = neighbor.ActualCost + CalcDistance(currentCell, neighbor);
 
-                    if (!_openCells.Contains(neighbor) || tmpActualCost < neighbor.ActualCost)
+                    if (/*!_openCells.Contains(neighbor) || */tmpActualCost < neighbor.ActualCost)
                     {
                         neighbor.Parent = currentCell;
                         neighbor.ActualCost = tmpActualCost;
@@ -106,10 +106,10 @@ namespace PathFinding
             int r = target.Row, c = target.Column;
             int index = 0;
 
-            { if (TryGetCell(r + 1, c, out Cell neighbor)) { _neighborCells[index] = neighbor; index++; } } // Up
-            { if (TryGetCell(r - 1, c, out Cell neighbor)) { _neighborCells[index] = neighbor; index++; } } // Down
-            { if (TryGetCell(r, c - 1, out Cell neighbor)) { _neighborCells[index] = neighbor; index++; } } // Left
-            { if (TryGetCell(r, c + 1, out Cell neighbor)) { _neighborCells[index] = neighbor; } }          // Right
+            { if (TryGetCell(r + 1, c, out Cell neighbor)) _neighborCells[index++] = neighbor; } // Up
+            { if (TryGetCell(r - 1, c, out Cell neighbor)) _neighborCells[index++] = neighbor; } // Down
+            { if (TryGetCell(r, c - 1, out Cell neighbor)) _neighborCells[index++] = neighbor; } // Left
+            { if (TryGetCell(r, c + 1, out Cell neighbor)) _neighborCells[index]   = neighbor; } // Right
         }
 
         /// <summary>2つのCellの距離を計算する</summary>
@@ -121,16 +121,16 @@ namespace PathFinding
         /// <returns>最短経路</returns>
         private AStarPathResult ConstructPath(in Cell targetCell)
         {
-            AStarPathResult path = new();
+            AStarPathResult result = new();
             Cell currentCell = targetCell;
 
             while (currentCell != null)
             {
-                path.ShortestPath.Add(currentCell);
+                result.ShortestPath.Add(currentCell);
                 currentCell = currentCell.Parent;
             }
-            path.ShortestPath.Reverse();
-            return path;
+            result.ShortestPath.Reverse();
+            return result;
         }
     }
 }
