@@ -5,17 +5,15 @@ public class MapCell : MonoBehaviour
 {
     public int Row { get; private set; } = 0;
     public int Column { get; private set; } = 0;
-    public float VisitedCost => _visitedCost;
-    public bool IsWalkable => _isWalkable;  // このCellが通れるかどうか
+    public float VisitedCost { get; private set; } = 0.0f;
+    public bool IsWalkable { get; private set; } = false;  // このCellが通れるかどうか
 
-    [Tooltip("このCellに移動するときにかかるコスト")]
-    [SerializeField] private int _visitedCost = 0;
-    [Tooltip("このCellに移動できるかどうか")]
-    [SerializeField] private bool _isWalkable = false;
-
-    public void SetCell(int row, int column)
+    public MapCell SetInfo(int row, int column, float cost, bool isWalkable)
     {
         Row = row;
         Column = column;
+        VisitedCost = cost;
+        IsWalkable = isWalkable;
+        return this;
     }
 }
