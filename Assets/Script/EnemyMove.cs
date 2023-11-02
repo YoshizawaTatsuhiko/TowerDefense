@@ -1,19 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
 
 // 日本語対応
-public class EnemyController : MonoBehaviour
+public class EnemyMove : MonoBehaviour
 {
     [SerializeField] private float _moveSpeed = 1.0f;
 
-    private void Start()
-    {
-        
-    }
-
-    private void EnemyMove(Vector2 dest)
+    private void Move(Vector2 dest)
     {
         Vector2 myPos = transform.position;
 

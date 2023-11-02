@@ -3,9 +3,9 @@ using System.Collections.Generic;
 // 日本語対応
 namespace PathFinding
 {
-    public class AStarPathResult
+    public class PathResult
     {
-        public AStarPathResult()
+        public PathResult()
         {
             ShortestPath = new List<Cell>();
         }
