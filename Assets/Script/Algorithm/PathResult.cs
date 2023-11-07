@@ -7,9 +7,10 @@ namespace PathFinding
     {
         public PathResult()
         {
-            ShortestPath = new List<Cell>();
+            ShortestPath = new();
         }
 
-        public List<Cell> ShortestPath = null;
+        /// <summary>最短経路となるセルが格納される</summary>
+        public List<(int X, int Y, int Z)> ShortestPath = null;
     }
 }

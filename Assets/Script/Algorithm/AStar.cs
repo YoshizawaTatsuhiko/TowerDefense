@@ -135,7 +135,7 @@ namespace PathFinding
 
             while (currentCell != null)
             {
-                result.ShortestPath.Add(currentCell);
+                result.ShortestPath.Add((currentCell.Column, currentCell.Row, 0));
                 currentCell = currentCell.Parent;
             }
             result.ShortestPath.Reverse();
