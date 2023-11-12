@@ -15,9 +15,22 @@ namespace PathFinding
         private List<Cell> _openCells = new List<Cell>();
         /// <summary>探索済みのCellを入れる</summary>
         private HashSet<Cell> _closeCells = new HashSet<Cell>();
-        /// <summary>ある１つのCellに隣接する４マスのCellを入れる</summary>
-        private Cell[] _neighborCells = new Cell[4];
+        /// <summary>ある１つのCellの周囲４マス(または、8マス)のCellを入れる</summary>
+        private Cell[] _neighborCells = new Cell[8];
+        /// <summary>経路探索を行う際、斜め方向の探索も行うかを判定する</summary>
+        private bool _hasUseDiagonal = false;
+        private (int, int)[] _directions =
+        {
+            (-1, 0),     // Up
+            (1, 0),    // Down
+            (0, -1),    // Left
+            (0, 1),     // Right
+            (-1, 1),     // UpperRight
+            (1, 1),    // LowerRight
+            (1, -1),   // LowerLeft
+            (-1, -1),    // UpperLeft
 
+        };
         public AStar(int width, int height)
         {
             _grid = new Cell[width, height];
@@ -29,13 +42,14 @@ namespace PathFinding
         /// <param name="targetX">目標地点の水平方向座標</param>
         /// <param name="targetY">目標地点の垂直方向座標</param>
         /// <returns>最短経路となるCellが格納されたリスト</returns>
-        public PathResult FindPath(int startX, int startY, int targetX, int targetY)
+        public PathResult FindPath(int startX, int startY, int targetX, int targetY, bool hasUseDiagonal = false)
         {
             if (!TryGetCell(startX, startY, out Cell startCell)
                 || !TryGetCell(targetX, targetY, out Cell targetCell))  // 渡された座標のCellが取得できるか確認する
             {
                 throw new ArgumentOutOfRangeException();
             }
+            _hasUseDiagonal = hasUseDiagonal;
             _openCells.Add(startCell);  // 探索候補に追加する
 
             while (_openCells.Count > 0)  // 探索候補がなくなったらループをやめる
