@@ -18,17 +18,18 @@ namespace PathFinding
         /// <summary>ある１つのCellの周囲４マス(または、8マス)のCellを入れる</summary>
         private Cell[] _neighborCells = new Cell[8];
         /// <summary>経路探索を行う際、斜め方向の探索も行うかを判定する</summary>
-        private bool _hasUseDiagonal = false;
-        private (int, int)[] _directions =
+        private bool _hasConsiderDiagonal = false;
+        /// <summary>探索する方向が入った配列</summary>
+        private (int V, int H)[] _directions =
         {
-            (-1, 0),     // Up
+            (-1, 0),   // Up
+            (0, 1),    // Right
             (1, 0),    // Down
-            (0, -1),    // Left
-            (0, 1),     // Right
-            (-1, 1),     // UpperRight
+            (0, -1),   // Left
+            (-1, 1),   // UpperRight
             (1, 1),    // LowerRight
             (1, -1),   // LowerLeft
-            (-1, -1),    // UpperLeft
+            (-1, -1),  // UpperLeft
 
         };
         public AStar(int width, int height)
@@ -42,14 +43,14 @@ namespace PathFinding
         /// <param name="targetX">目標地点の水平方向座標</param>
         /// <param name="targetY">目標地点の垂直方向座標</param>
         /// <returns>最短経路となるCellが格納されたリスト</returns>
-        public PathResult FindPath(int startX, int startY, int targetX, int targetY, bool hasUseDiagonal = false)
+        public PathResult FindPath(int startX, int startY, int targetX, int targetY, bool hasConsiderDiagonal = false)
         {
             if (!TryGetCell(startX, startY, out Cell startCell)
                 || !TryGetCell(targetX, targetY, out Cell targetCell))  // 渡された座標のCellが取得できるか確認する
             {
                 throw new ArgumentOutOfRangeException();
             }
-            _hasUseDiagonal = hasUseDiagonal;
+            _hasConsiderDiagonal = hasConsiderDiagonal;
             _openCells.Add(startCell);  // 探索候補に追加する
 
             while (_openCells.Count > 0)  // 探索候補がなくなったらループをやめる
@@ -125,13 +126,13 @@ namespace PathFinding
         {
             Array.Fill(_neighborCells, null);
             int r = target.Row, c = target.Column;
-            int index = 0;
+            int dirCount = _directions.Length / (_hasConsiderDiagonal ? 1 : 2);
 
-            { if (TryGetCell(r + 1, c, out Cell neighbor)) _neighborCells[index++] = neighbor; } // Up
-            { if (TryGetCell(r - 1, c, out Cell neighbor)) _neighborCells[index++] = neighbor; } // Down
-            { if (TryGetCell(r, c - 1, out Cell neighbor)) _neighborCells[index++] = neighbor; } // Left
-            { if (TryGetCell(r, c + 1, out Cell neighbor)) _neighborCells[index]   = neighbor; } // Right
-
+            for (int i = 0, index = 0; i < dirCount; i++)
+            {
+                var dir = _directions[i];
+                if (TryGetCell(r + dir.V, c + dir.H, out Cell cell)) _neighborCells[index++] = cell;
+            }
             return _neighborCells;
         }
 
