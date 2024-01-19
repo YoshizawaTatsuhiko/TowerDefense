@@ -7,6 +7,24 @@ namespace PathFinding
 {
     public class AStar
     {
+        public class Cell
+        {
+            public int Row { get; private set; } = 0;  // 行番号
+            public int Column { get; private set; } = 0;  // 列番号
+            public Cell Parent { get; set; } = null;  // 親ノード
+            public bool IsWalkable { get; set; } = true;  // このCellが通れるかどうか
+            public float TotalCost => ActualCost + HeuristicCost;  // 合計コスト = 実コスト + 推定コスト
+            public float ActualCost { get; set; } = 0f;  // 実コスト = スタートからどのくらい進んだか
+            public float HeuristicCost { get; set; } = 0f;  // 推定コスト = ゴールからどのくらい離れているか
+
+            public Cell(int row, int column, bool isWalkable)
+            {
+                Row = row;
+                Column = column;
+                IsWalkable = isWalkable;
+            }
+        }
+
         public Cell this[int row, int column] => _grid[row, column];
 
         /// <summary>経路探索に用いる情報が入った2次元配列</summary>
@@ -14,7 +32,7 @@ namespace PathFinding
         /// <summary>次に探索する候補となるCellを入れる</summary>
         private List<Cell> _openCells = new List<Cell>();
         /// <summary>探索済みのCellを入れる</summary>
-        private HashSet<Cell> _closeCells = new HashSet<Cell>();
+        private HashSet<Cell> _closedCells = new HashSet<Cell>();
         /// <summary>ある１つのCellの周囲４マス(または、8マス)のCellを入れる</summary>
         private Cell[] _neighborCells = new Cell[8];
         /// <summary>経路探索を行う際、斜め方向の探索も行うかを判定する</summary>
@@ -32,6 +50,7 @@ namespace PathFinding
             (-1, -1),  // UpperLeft
 
         };
+
         public AStar(int width, int height)
         {
             _grid = new Cell[width, height];
@@ -39,14 +58,14 @@ namespace PathFinding
 
         /// <summary>最短経路を探索する</summary>
         /// <param name="startX">開始地点の水平方向座標</param>
-        /// <param name="startY">開始地点の垂直方向座標</param>
+        /// <param name="startYZ">開始地点の垂直方向座標</param>
         /// <param name="targetX">目標地点の水平方向座標</param>
-        /// <param name="targetY">目標地点の垂直方向座標</param>
+        /// <param name="targetYZ">目標地点の垂直方向座標</param>
         /// <returns>最短経路となるCellが格納されたリスト</returns>
-        public PathResult FindPath(int startX, int startY, int targetX, int targetY, bool hasConsiderDiagonal = false)
+        public PathResult FindPath(int startX, int startYZ, int targetX, int targetYZ, bool hasConsiderDiagonal = false)
         {
-            if (!TryGetCell(startX, startY, out Cell startCell)
-                || !TryGetCell(targetX, targetY, out Cell targetCell))  // 渡された座標のCellが取得できるか確認する
+            if (!TryGetCell(startX, startYZ, out Cell startCell)
+                || !TryGetCell(targetX, targetYZ, out Cell targetCell))  // 渡された座標のCellが取得できるか確認する
             {
                 throw new ArgumentOutOfRangeException();
             }
@@ -57,7 +76,7 @@ namespace PathFinding
             {
                 Cell currentCell = FindLowestCostCell();
                 _openCells.Remove(currentCell);  // 探索候補から削除する
-                _closeCells.Add(currentCell);  // 探索済みに追加する
+                _closedCells.Add(currentCell);  // 探索済みに追加する
 
                 if (currentCell == targetCell)  // 目的のセルに到達したら、結果を返して関数を抜ける
                 {
@@ -68,7 +87,7 @@ namespace PathFinding
                 foreach (var neighbor in FindNeighborCell(currentCell))
                 {
                     if (neighbor == null) break;
-                    if (!neighbor.IsWalkable || _closeCells.Contains(neighbor)) continue;
+                    if (!neighbor.IsWalkable || _closedCells.Contains(neighbor)) continue;
 
                     float tmpActualCost = neighbor.ActualCost + CalcDistance(currentCell, neighbor);
 
@@ -91,26 +110,33 @@ namespace PathFinding
         /// <param name="isWalkable">このセルが通行可能かどうか</param>
         public void InitCell(int r, int c, bool isWalkable)
         {
-            if (!TryGetCell(r, c, out Cell cell)) return;
+            if (!TryCheckCell(r, c)) return;
 
             _grid[r, c] = new Cell(r, c, isWalkable);
         }
 
-        /// <summary>2次元配列に受け取った行番号・列番号のCellが取得できるかを判定する</summary>
+        /// <summary>2次元配列から、受け取った行番号・列番号のCellが取得できるかを判定する</summary>
         /// <param name="row">行番号</param>
-        /// <param name="column">列番号</param>
+        /// <param name="col">列番号</param>
         /// <param name="cell">行番号・列番号目のCell</param>
         /// <returns>取得できる -> true | 取得できない -> false</returns>
-        private bool TryGetCell(int row, int column, out Cell cell)
+        private bool TryGetCell(int row, int col, out Cell cell)
         {
-            if (row < 0 || row >= _grid.GetLength(0) || column < 0 || column >= _grid.GetLength(1))
+            if (row < 0 || row >= _grid.GetLength(0) || col < 0 || col >= _grid.GetLength(1))
             {
                 cell = null;
                 return false;
             }
-            cell = _grid[row, column];
+            cell = _grid[row, col];
             return true;
         }
+
+        /// <summary>2次元配列から、受け取った行番号・列番号のCellが取得できるかを判定する</summary>
+        /// <param name="row">行番号</param>
+        /// <param name="col">列番号</param>
+        /// <returns>取得できる -> true | 取得できない -> false</returns>
+        private bool TryCheckCell(int row, int col) =>
+            !(row < 0 || row >= _grid.GetLength(0) || col < 0 || col >= _grid.GetLength(1));
 
         /// <summary>最も探索コストの低いセルを探す</summary>
         /// <returns>次に開くセル</returns>
