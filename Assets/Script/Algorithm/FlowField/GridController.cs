@@ -1,8 +1,9 @@
 using UnityEngine;
 
 // 日本語対応
-public class GridController : MonoBehaviour, IGridInfo
+public class GridController : MonoBehaviour, IGridDataContainer
 {
+    public IGridDataContainer GridDataContainer => this;
     public Vector2Int GridSize => _gridSize;
     public float CellRadius => _cellRadius;
     public FlowField FlowField => _flowField;
@@ -15,8 +16,7 @@ public class GridController : MonoBehaviour, IGridInfo
     private void Start()
     {
         _flowField = new FlowField(_cellRadius, _gridSize.x, _gridSize.y);
+
         _flowField.CreateGrid();
     }
-
-
 }
